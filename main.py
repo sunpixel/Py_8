@@ -2,6 +2,7 @@
 from fastapi import FastAPI, Query, Request, Cookie, Form
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, Response
 from pydantic import BaseModel
+import gc
 
 # pylint: disable=C0103
 
@@ -95,18 +96,37 @@ def user_register_post(user: UserData):
     html = f'<h1>Registered, {user.usename} successfully</h1>'
     return HTMLResponse(content=html)
 
-class User:
+class UserModel:
     '''Class that defines users'''
-    id: int
-    username: str
-    password: str
-    email: str
+    def __init__(self, id, username, password, email):
+        self.id: int = id
+        self.username: str = username
+        self.password: str = password
+        self.email: str = email
 
-User(0, 'SunPixel', 'Qwerty', '22@33')
-User(1, '1223', 'Qwerty', '23@34')
-User(2, 'PixelS', 'Kenek', '22@44.ru')
+users = [
+    UserModel(0, 'SunPixel', 'Qwerty', '22@33'),
+    UserModel(1, '1223', 'Qwerty', '23@34'),
+    UserModel(2, 'PixelS', 'Kenek', '22@44.ru')
+]
 
 @app.get('/users')
 def get_users():
     '''A function returning all users of class as JSON'''
+    return [user.__dict__ for user in users]
 
+@app.get('/user/{user_id}')
+def get_user(user_id: int):
+    '''A function returning a user by id'''
+    user = next((user for user in users if user.id == user_id), None)
+    if user:
+        return user.__dict__
+    return {'message': 'User not found'}
+
+@app.post('/add_user')
+def add_user(user: UserData):
+    '''A function to add a new user using POST request'''
+    new_id = len(users)
+    new_user = UserModel(new_id, user.username, user.password, user.email)
+    users.append(new_user)
+    return {'message': f'User {user.username} added successfully'}
