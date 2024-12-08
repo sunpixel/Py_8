@@ -1,0 +1,4 @@
+this is a text file
+this text file contains text
+which contains words in text
+and theese words contain symbols
