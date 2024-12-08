@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+</head>
+<body>
+    <h2>User Registration</h2>
+    <form onsubmit="event.preventDefault(); sendData();">
+        <p>
+            Username:<br>
+            <input name="username" id="username" type="text" required />
+        </p>
+        <p>
+            Password:<br>
+            <input name="password" id="password" type="password" required />
+        </p>
+        <p>
+            Email:<br>
+            <input name="email" id="email" type="email" required />
+        </p>
+        <input type="submit" value="Send" />
+    </form>
+</body>
+
+<script>
+    async function sendData() {
+    // Collecting data from inputs
+    const data = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        email: document.getElementById('email').value
+    };
+
+    
+// Sending data as JSON to the server
+    fetch('http://127.0.0.1:8888/register_post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+}
+</script>
+</html>

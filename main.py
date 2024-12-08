@@ -1,6 +1,9 @@
 '''Main'''
-from fastapi import FastAPI, Path
-from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
+from fastapi import FastAPI, Query, Request, Cookie, Form
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, Response
+from pydantic import BaseModel
+
+# pylint: disable=C0103
 
 app = FastAPI()
 
@@ -16,8 +19,8 @@ def name(name1):
     content = f'<h1>Hello, {name1}<h1>'
     return HTMLResponse(content=content)
 
-@app.get('/search/{string}')
-def searcg(string: str = Path(min_length=2, max_length=40)):
+@app.get('/search/')
+def searcg(string: str = Query(default='None', min_length=2, max_length=40)):
     '''Search query'''
     html = f'<h2>You searched: {string}<h2>'
     return HTMLResponse(content=html)
@@ -43,3 +46,67 @@ def file_sender():
 def redirection_handler():
     '''a function that will redirect'''
     return RedirectResponse('/', status_code=308)
+
+@app.get('/headers')
+def get_headers(request: Request):
+    '''Function that retrieves headers from http request'''
+    headers = request.headers
+    return headers
+
+@app.get('/set-cookie')
+def cookie_setter(response: Response):
+    '''Sets cookies in the browser'''
+    response.set_cookie(key='username', value='your_name')
+    return {'message': 'Cookies set'}
+
+@app.get('/get-cookie')
+def cookie_getter(username = Cookie()):
+    '''Gets cookies in the browser'''
+    return {'UserName': username}
+
+@app.get('/login')
+def user_login():
+    '''Functiont that logs user in'''
+    return FileResponse("public/login.html")
+
+@app.post('/login_post')
+def log_in(username = Form(), password= Form()):
+    '''Processes the HTTP post request'''
+    html = f'<h1>Welcome, {username}<h1>'
+    return HTMLResponse(content=html)
+
+@app.get('/register')
+def user_register():
+    '''sends user HTML page'''
+    return FileResponse('public/register.html')
+
+
+class UserData(BaseModel):
+    '''Base model for user data'''
+    username: str
+    password: str
+    email: str
+
+usename = 'default'
+
+@app.post('/register_post')
+def user_register_post(user: UserData):
+    '''Processes the HTTP post request'''
+    html = f'<h1>Registered, {user.usename} successfully</h1>'
+    return HTMLResponse(content=html)
+
+class User:
+    '''Class that defines users'''
+    id: int
+    username: str
+    password: str
+    email: str
+
+User(0, 'SunPixel', 'Qwerty', '22@33')
+User(1, '1223', 'Qwerty', '23@34')
+User(2, 'PixelS', 'Kenek', '22@44.ru')
+
+@app.get('/users')
+def get_users():
+    '''A function returning all users of class as JSON'''
+
