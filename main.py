@@ -2,7 +2,6 @@
 from fastapi import FastAPI, Query, Request, Cookie, Form
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, Response
 from pydantic import BaseModel
-import gc
 
 # pylint: disable=C0103
 
